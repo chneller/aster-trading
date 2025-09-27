@@ -4,12 +4,14 @@ import sys
 import time
 import typer
 from rich.console import Console
+import threading
 
 from .config import load_settings
 from .api_client import AsterClient
 from .strategy import MicroMaker
 from .ws_client import run_ws_book_ticker
 from .risk import RiskManager, RiskCaps, CostModel
+from .pairs import run_pairs_meanrev
 # swing module disabled by request
 
 
@@ -212,6 +214,59 @@ def maker(
         raise typer.Exit(code=1)
     finally:
         client.close()
+
+
+@app.command()
+def pairs_meanrev(
+    symbol_a: str = typer.Argument("BTCUSDT"),
+    symbol_b: str = typer.Argument("ETHUSDT"),
+    cap_usdt: float = typer.Option(200.0, help="Total notional cap for the pair (both legs)"),
+    z_enter: float = typer.Option(2.0),
+    z_exit: float = typer.Option(0.5),
+    z_stop: float = typer.Option(3.5),
+    loops: int = typer.Option(100000),
+):
+    """Run a simple beta-hedged mean reversion on two symbols."""
+    try:
+        run_pairs_meanrev(symbol_a=symbol_a, symbol_b=symbol_b, cap_usdt=cap_usdt, z_enter=z_enter, z_exit=z_exit, z_stop=z_stop, loops=loops)
+    except Exception as e:
+        console.print(f"Pairs loop failed: {e}")
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def multi(
+    maker_symbol: str = typer.Option("BTCUSDT"),
+    maker_cap: float = typer.Option(150.0, help="Maker cap in USDT"),
+    pairs: str = typer.Option("BTCUSDT,ETHUSDT"),
+    pairs_cap: float = typer.Option(200.0, help="Pairs total cap in USDT"),
+    z_enter: float = typer.Option(2.0),
+    z_exit: float = typer.Option(0.5),
+    z_stop: float = typer.Option(3.5),
+    shared_daily_loss_cap: float = typer.Option(3.5),
+    width_ticks: int = typer.Option(2),
+    drift_ticks: int = typer.Option(2),
+    min_edge_bps: float = typer.Option(0.01),
+):
+    """Run maker and pairs concurrently with separate caps and one shared daily loss cap."""
+    settings = load_settings()
+    pair_a, pair_b = [s.strip() for s in pairs.split(",")]
+    # Background threads
+    stop_event = False
+    maker_thread = threading.Thread(
+        target=maker,
+        kwargs=dict(symbol=maker_symbol, dry_run=False, loops=100000, width_ticks=width_ticks, drift_ticks=drift_ticks, daily_loss_cap=shared_daily_loss_cap, symbol_max_quote=maker_cap, min_edge_bps=min_edge_bps),
+        daemon=True,
+    )
+    pairs_thread = threading.Thread(
+        target=pairs_meanrev,
+        kwargs=dict(symbol_a=pair_a, symbol_b=pair_b, cap_usdt=pairs_cap, z_enter=z_enter, z_exit=z_exit, z_stop=z_stop, loops=100000),
+        daemon=True,
+    )
+    maker_thread.start()
+    pairs_thread.start()
+    maker_thread.join()
+    pairs_thread.join()
 
 
 @app.command(hidden=True)

@@ -125,6 +125,11 @@ class AsterClient:
         resp = self._signed_request("GET", "/fapi/v2/positionRisk")
         return resp.json()
 
+    def set_leverage(self, *, symbol: str, leverage: int) -> Dict[str, Any]:
+        params: Dict[str, Any] = {"symbol": symbol, "leverage": leverage}
+        resp = self._signed_request("POST", "/fapi/v1/leverage", params=params)
+        return resp.json()
+
     def income_history(self, *, startTime: Optional[int] = None, endTime: Optional[int] = None, limit: int = 1000) -> Any:
         params: Dict[str, Any] = {"limit": limit}
         if startTime is not None:
