@@ -1,0 +1,34 @@
+[project]
+name = "aster-trading"
+version = "0.1.0"
+description = "Scalping-oriented trading bot scaffold for Aster DEX Pro Mode"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "christian" }
+]
+license = { text = "MIT" }
+dependencies = [
+  "httpx>=0.27",
+  "websockets>=12.0",
+  "pydantic>=2.7",
+  "python-dotenv>=1.0",
+  "rich>=13.7",
+  "tenacity>=8.2",
+  "typer>=0.12"
+]
+
+[project.scripts]
+aster-trading = "aster_trading.cli:app"
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.isort]
+profile = "black"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
