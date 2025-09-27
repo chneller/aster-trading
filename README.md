@@ -66,27 +66,32 @@ Commands (most used)
 aster-trading ping
 aster-trading ws-ping btcusdt
 
+---
+
 # Maker
-##SAFE - Farm-safe settings (still active, but controlled)
+# SAFE - Farm-safe settings (still active, but controlled)
 aster-trading maker BTCUSDT --no-dry-run --loops 100000 --width-ticks 3 --drift-ticks 2 --daily-loss-cap 1.4 --symbol-max-quote 12.5 --min-edge-bps 0.03
 
-##SAFEST - Fee-positive (much fewer fills, aim to cover fees)
+# SAFEST - Fee-positive (much fewer fills, aim to cover fees)
 aster-trading maker BTCUSDT --no-dry-run --loops 100000 --width-ticks 100 --drift-ticks 2 --daily-loss-cap 1 --symbol-max-quote 12.5 --min-edge-bps 0.1
 
-# Maximum volume approach
+# MAX VOL
 aster-trading maker BTCUSDT --no-dry-run --loops 100000 --width-ticks 2 --drift-ticks 2 --daily-loss-cap 4 --symbol-max-quote 150 --min-edge-bps 0.01
 
-# Maker + Pairs Strategies
+---
+
+# Maker + Pairs Strategies (Statistical Arb)
 aster-trading multi --maker-symbol BTCUSDT --maker-cap 150 --pairs BTCUSDT,ETHUSDT --pairs-cap 240 --z-enter 2.0 --z-exit 0.5 --shared-daily-loss-cap 3.5
 
-# Pairs Only
+# Pairs Only (Statistical Arb)
 aster-trading pairs-meanrev BTCUSDT ETHUSDT --cap-usdt 240 --z-enter 2.0 --z-exit 0.5 --z-stop 3.5
+
+---
 
 # Post-only helper
 aster-trading postonly BTCUSDT BUY 109500 2
 
-# Swing (breakout with ATR)
-aster-trading run-swing BTCUSDT --interval 15m --dry-run
+---
 
 # Account and safety
 aster-trading account
