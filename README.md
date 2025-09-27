@@ -1,14 +1,12 @@
 # Aster DEX Pro - Algo v1.0
 Micro Maker + Statistical Arbitrage bot
-------
 
-Strategies (brief)
+Strategies
 
 - Maker (MicroMaker): posts symmetric bid/ask around the mid, reprices when the mid drifts, and gates by a minimum natural spread. Best for steady volume with low risk. Key knobs: `--width-ticks`, `--drift-ticks`, `--min-edge-bps`, `--symbol-max-quote`.
 - Statistical arbitrage (pairs-meanrev): trades BTCUSDT vs ETHUSDT via a beta‑hedged z‑score spread. Enters when |z| >= z_enter, exits near z_exit or on timeout with reduceOnly market closes. Ensure `--pairs-cap` is high enough to satisfy min order sizes (BTC leg ≈ ≥ 0.001 BTC notional).
 - Multi: runs both concurrently with separate caps and a shared daily loss cap. Recommended: one‑way mode, cross margin, and sufficient leverage on the exchange for small balances.
-
-
+------
 
 Quick start
 
