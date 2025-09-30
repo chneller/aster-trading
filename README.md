@@ -70,10 +70,10 @@ aster-trading ws-ping btcusdt
 
 # Maker
 # SAFE - Farm-safe settings (still active, but controlled)
-aster-trading maker BTCUSDT --no-dry-run --loops 100000 --width-ticks 3 --drift-ticks 2 --daily-loss-cap 1.4 --symbol-max-quote 12.5 --min-edge-bps 0.03
+aster-trading maker BTCUSDT --no-dry-run --loops 100000 --width-ticks 3 --drift-ticks 2 --daily-loss-cap 1.4 --symbol-max-quote 150 --min-edge-bps 0.03
 
 # SAFEST - Fee-positive (much fewer fills, aim to cover fees)
-aster-trading maker BTCUSDT --no-dry-run --loops 100000 --width-ticks 100 --drift-ticks 2 --daily-loss-cap 1 --symbol-max-quote 12.5 --min-edge-bps 0.1
+aster-trading maker BTCUSDT --no-dry-run --loops 100000 --width-ticks 100 --drift-ticks 2 --daily-loss-cap 1 --symbol-max-quote 150 --min-edge-bps 0.1
 
 # MAX VOL
 aster-trading maker BTCUSDT --no-dry-run --loops 100000 --width-ticks 2 --drift-ticks 2 --daily-loss-cap 4 --symbol-max-quote 150 --min-edge-bps 0.01

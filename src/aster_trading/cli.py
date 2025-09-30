@@ -158,14 +158,16 @@ def maker(
                 incomes = client.income_history(limit=100)
                 # Sum today's income
                 import time as _t
-                day_str = _t.strftime("%Y-%m-%d")
-                day_ms = int(_t.time())
                 pnl_today = 0.0
-                for inc in incomes:
-                    if "time" in inc and "income" in inc:
-                        pnl_today += float(inc.get("income", 0.0))
+                for inc in incomes or []:
+                    val = inc.get("income") if isinstance(inc, dict) else None
+                    try:
+                        pnl_today += float(val) if val is not None else 0.0
+                    except Exception:
+                        continue
                 rm._daily_pnl = pnl_today
             except Exception:
+                # keep previous _daily_pnl on failure
                 pass
 
             if not rm.check_daily_loss():
@@ -175,8 +177,19 @@ def maker(
                 break
 
             bt = client.book_ticker(symbol)
-            bid = float(bt.get("bidPrice"))
-            ask = float(bt.get("askPrice"))
+            # Guard against None/invalid values from API
+            try:
+                bid_raw = bt.get("bidPrice")
+                ask_raw = bt.get("askPrice")
+                bid = float(bid_raw) if bid_raw is not None else None
+                ask = float(ask_raw) if ask_raw is not None else None
+            except Exception:
+                bid = None
+                ask = None
+            if bid is None or ask is None:
+                console.print({"skip": "invalid_book_ticker", "bidPrice": bt.get("bidPrice"), "askPrice": bt.get("askPrice")})
+                time.sleep(0.6)
+                continue
             mid = (bid + ask) / 2
 
             # natural spread in bps
